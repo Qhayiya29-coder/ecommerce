@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ product.name }} | ExpressMarket{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+  <!-- Breadcrumb -->
+  <nav class="mb-6 text-sm">
+    <ol class="flex items-center space-x-2 text-gray-600">
+      <li><a href="{% url 'core_ecommerce:home' %}" class="hover:text-blue-600">Home</a></li>
+      <li>/</li>
+      {% if product.category %}
+        <li><a href="?category={{ product.category.slug }}" class="hover:text-blue-600">{{ product.category.name }}</a></li>
+        <li>/</li>
+      {% endif %}
+      <li class="text-gray-900">{{ product.name }}</li>
+    </ol>
+  </nav>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+    <!-- Product Image -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+      {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-auto object-cover">
+      {% else %}
+        <div class="w-full h-96 flex items-center justify-center bg-gray-100 text-gray-500">
+          No Image Available
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Product Info -->
+    <div class="bg-white rounded-lg shadow-lg p-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ product.name }}</h1>
+      
+      {% if product.category %}
+        <p class="text-blue-600 mb-4">
+          <a href="?category={{ product.category.slug }}" class="hover:underline">{{ product.category.name }}</a>
+        </p>
+      {% endif %}
+
+      <div class="mb-6">
+        <span class="text-4xl font-bold text-blue-700">${{ product.price }}</span>
+      </div>
+
+      {% if product.vendor %}
+        <div class="mb-6 pb-6 border-b">
+          <p class="text-sm text-gray-600 mb-1">Sold by</p>
+          <p class="text-lg font-semibold text-gray-900">
+            {% if product.vendor.business_name %}
+              {{ product.vendor.business_name }}
+            {% else %}
+              {{ product.vendor.user.username }}
+            {% endif %}
+          </p>
+          {% if product.vendor.rating %}
+            <div class="mt-2 flex items-center">
+              <span class="text-yellow-500">★</span>
+              <span class="ml-1 text-sm text-gray-600">{{ product.vendor.rating }}/5</span>
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold mb-2">Description</h3>
+        <p class="text-gray-700 leading-relaxed">{{ product.description|linebreaks }}</p>
+      </div>
+
+      <form method="post" action="{% url 'core_ecommerce:add_to_cart' product.id %}" class="flex gap-4">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.path }}">
+        <div class="flex items-center gap-2 mr-4">
+          <label for="quantity" class="text-sm font-medium text-gray-700">Quantity:</label>
+          <input type="number" 
+                 name="quantity" 
+                 id="quantity"
+                 value="1" 
+                 min="1" 
+                 class="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center">
+        </div>
+        <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200">
+          Add to Cart
+        </button>
+        <button type="button" class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition duration-200">
+          <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+          </svg>
+        </button>
+      </form>
+
+      <div class="mt-6 pt-6 border-t text-sm text-gray-600">
+        <p><strong>Added:</strong> {{ product.created_at|date:"F d, Y" }}</p>
+        {% if product.updated_at != product.created_at %}
+          <p class="mt-1"><strong>Updated:</strong> {{ product.updated_at|date:"F d, Y" }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Related Products -->
+  {% if related_products %}
+    <div class="mt-12">
+      <h2 class="text-2xl font-bold mb-6">Related Products</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {% for related_product in related_products %}
+          <div class="bg-white rounded-lg shadow hover:shadow-md transition">
+            <a href="{% url 'product:product_detail' related_product.slug %}">
+              {% if related_product.image %}
+                <img src="{{ related_product.image.url }}" alt="{{ related_product.name }}" class="rounded-t-lg w-full h-48 object-cover">
+              {% else %}
+                <div class="rounded-t-lg w-full h-48 flex items-center justify-center bg-gray-100 text-gray-500">No Image</div>
+              {% endif %}
+              <div class="p-4">
+                <h3 class="font-semibold text-lg mb-1">{{ related_product.name }}</h3>
+                <p class="text-blue-700 font-bold text-xl">${{ related_product.price }}</p>
+              </div>
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
+

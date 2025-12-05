@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-[calc(100vh-200px)]">
+  <div class="w-full max-w-md">
+    <div class="bg-white rounded-lg shadow-md p-8">
+      <h3 class="mb-6 text-2xl font-bold text-center text-gray-800">Register as a</h3>
+      <form method="post" action="{% url 'accounts:user_type' %}">
+        {% csrf_token %}
+        
+        <div class="flex flex-col gap-2">
+          {% for choice in form.fields.user_type.choices %}
+            <div class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="user_type" value="{{ choice.0 }}" id="user_type_{{ choice.0 }}
+              class="form-radio accent-blue-500"
+              checked="{% if form.user_type.value == choice.0 %}checked{% endif %}"
+              >
+              <label for="user_type_{{ choice.0 }}" class="text-gray-700">{{ choice.1 }}</label>
+            </div>
+          {% endfor %}
+        </div>
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-200">
+          Continue
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

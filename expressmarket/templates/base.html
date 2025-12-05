@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ExpressMarket - Multi Vendor Ecommerce{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gray-50 flex flex-col min-h-screen">
+    <nav class="bg-gray-900 text-white shadow-lg">
+      <div class="container mx-auto px-4">
+        <div class="flex items-center justify-between h-16">
+          <a class="text-xl font-bold" href="{% url 'core_ecommerce:home' %}">ExpressMarket</a>
+          <button class="md:hidden p-2 rounded-md hover:bg-gray-800" type="button" id="mobile-menu-button" aria-label="Toggle navigation">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+          <div class="hidden md:flex md:items-center md:space-x-1" id="navbarNav">
+            <div class="flex items-center space-x-1">
+              <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="{% url 'core_ecommerce:home' %}">Marketplace</a>
+              <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="#">Vendors</a>
+              <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition relative" href="{% url 'core_ecommerce:cart' %}">
+                Cart
+                {% if cart_count > 0 %}
+                  <span class="absolute -top-1 -right-1 bg-blue-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                    {{ cart_count }}
+                  </span>
+                {% endif %}
+              </a>
+            </div>
+            <div class="flex items-center space-x-1 ml-4">
+              {% if user.is_authenticated %}
+                {% if user.is_vendor %}
+                  <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="#">Vendor Dashboard</a>
+                {% endif %}
+                <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="#">My Orders</a>
+                <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="#">Account</a>
+                <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="{% url 'accounts:logout' %}">Logout</a>
+              {% else %}
+                <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="{% url 'accounts:login' %}">Login</a>
+                <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="{% url 'accounts:register' %}">Register</a>
+                <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="{% url 'accounts:user_type' %}">Become a Vendor</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <!-- Mobile menu -->
+        <div class="hidden md:hidden pb-4" id="mobile-menu">
+          <div class="flex flex-col space-y-1">
+            <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="{% url 'core_ecommerce:home' %}">Marketplace</a>
+            <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="#">Vendors</a>
+            <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition relative" href="{% url 'core_ecommerce:cart' %}">
+              Cart
+              {% if cart_count > 0 %}
+                <span class="ml-2 bg-blue-600 text-white text-xs font-bold rounded-full h-5 w-5 inline-flex items-center justify-center">
+                  {{ cart_count }}
+                </span>
+              {% endif %}
+            </a>
+            {% if user.is_authenticated %}
+              {% if user.is_vendor %}
+                <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="#">Vendor Dashboard</a>
+              {% endif %}
+              <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="#">My Orders</a>
+              <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="#">Account</a>
+              <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="{% url 'accounts:logout' %}">Logout</a>
+            {% else %}
+              <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="{% url 'accounts:login' %}">Login</a>
+              <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="{% url 'accounts:register' %}">Register</a>
+              <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="{% url 'accounts:user_type' %}">Become a Vendor</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </nav>
+    <main class="flex-grow">
+      <div class="container mx-auto px-4 mt-8 mb-8">
+          {% if messages %}
+            {% for message in messages %}
+              <div class="mb-4 p-4 rounded-lg border-l-4 {% if message.tags == 'error' or message.tags == 'danger' %}bg-red-50 border-red-500 text-red-700{% elif message.tags == 'warning' %}bg-yellow-50 border-yellow-500 text-yellow-700{% elif message.tags == 'success' %}bg-green-50 border-green-500 text-green-700{% else %}bg-blue-50 border-blue-500 text-blue-700{% endif %}" role="alert">
+                <div class="flex items-center justify-between">
+                  <span>{{ message }}</span>
+                  <button type="button" class="ml-4 text-gray-500 hover:text-gray-700" onclick="this.parentElement.parentElement.remove()" aria-label="Close">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            {% endfor %}
+          {% endif %}
+          {% block content %}{% endblock %}
+      </div>
+    </main>
+    <footer class="bg-gray-100 border-t border-gray-200 mt-auto">
+      <div class="container mx-auto px-4 py-6 text-center text-gray-600">
+        <p>&copy; {{ year|default:2024 }} ExpressMarket. All rights reserved.</p>
+        <div class="mt-2 space-x-4">
+          <a href="#" class="hover:text-gray-900 transition">Privacy Policy</a>
+          <a href="#" class="hover:text-gray-900 transition">Terms & Conditions</a>
+        </div>
+      </div>
+    </footer>
+    <script>
+      // Mobile menu toggle
+      document.getElementById('mobile-menu-button')?.addEventListener('click', function() {
+        const menu = document.getElementById('mobile-menu');
+        menu?.classList.toggle('hidden');
+      });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
