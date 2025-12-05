@@ -1,19 +1,19 @@
 from pathlib import Path
+from decouple import config, Csv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-yt(kl#e8w%urk&k9a$ak9=gcxwf&bl1d*sa__5)vy-o+o&^89e'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
 
 
 # Application definition
@@ -73,10 +73,23 @@ WSGI_APPLICATION = 'expressmarket.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('DB_NAME', default='expressmarket_db'),
+        'USER': config('DB_USER', default='postgres'),
+        'PASSWORD': config('DB_PASSWORD', default=''),
+        'HOST': config('DB_HOST', default='localhost'),
+        'PORT': config('DB_PORT', default='5432'),
     }
 }
+
+# Fallback to SQLite if PostgreSQL is not configured
+# Uncomment below and comment above if you want to use SQLite for development
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 # Password validation
@@ -124,24 +137,18 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Email Configuration
-# For development, emails are printed to console
-# For production, configure SMTP settings
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Development: prints to console
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Production: uncomment and configure below
-
-# Production email settings (uncomment and configure for production)
-# EMAIL_HOST = 'smtp.gmail.com'  # or your SMTP server
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'your-email@gmail.com'
-# EMAIL_HOST_PASSWORD = 'your-app-password'
-# DEFAULT_FROM_EMAIL = 'ExpressMarket <noreply@expressmarket.com>'
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='ExpressMarket <noreply@expressmarket.com>')
 
 # Password reset settings
 PASSWORD_RESET_TIMEOUT = 86400  # 24 hours in seconds (token expiration)
 
 # Site configuration for password reset emails
-# Update these in production
-SITE_ID = 1
-SITE_NAME = 'ExpressMarket'
-SITE_DOMAIN = 'localhost:8000'  # Change to your domain in production
+SITE_ID = config('SITE_ID', default=1, cast=int)
+SITE_NAME = config('SITE_NAME', default='ExpressMarket')
+SITE_DOMAIN = config('SITE_DOMAIN', default='localhost:8000')

@@ -33,9 +33,14 @@
         </div>
 
         <div>
-          <label for="{{ form.category.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-            Category <span class="text-red-500">*</span>
-          </label>
+          <div class="flex items-center justify-between mb-1">
+            <label for="{{ form.category.id_for_label }}" class="block text-sm font-medium text-gray-700">
+              Category <span class="text-red-500">*</span>
+            </label>
+            <a href="{% url 'product:category_create' %}" target="_blank" class="text-sm text-blue-600 hover:text-blue-800">
+              + Create New Category
+            </a>
+          </div>
           {{ form.category }}
           {% if form.category.errors %}
             <p class="text-red-500 text-xs mt-1">{{ form.category.errors|striptags }}</p>

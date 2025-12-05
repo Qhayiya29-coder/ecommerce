@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{% if is_edit %}Edit{% else %}Create{% endif %} Category | ExpressMarket{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-2xl">
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900">{% if is_edit %}Edit Category{% else %}Create New Category{% endif %}</h1>
+    <p class="text-gray-600 mt-2">{% if is_edit %}Update category information{% else %}Add a new product category{% endif %}</p>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-lg p-6">
+    <form method="post">
+      {% csrf_token %}
+      
+      {% if form.non_field_errors %}
+        <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+          {% for error in form.non_field_errors %}
+            <p class="text-red-600 text-sm">{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="space-y-4">
+        <div>
+          <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+            Category Name <span class="text-red-500">*</span>
+          </label>
+          {{ form.name }}
+          {% if form.name.errors %}
+            <p class="text-red-500 text-xs mt-1">{{ form.name.errors|striptags }}</p>
+          {% endif %}
+        </div>
+
+        <div>
+          <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+            Description
+          </label>
+          {{ form.description }}
+          {% if form.description.errors %}
+            <p class="text-red-500 text-xs mt-1">{{ form.description.errors|striptags }}</p>
+          {% endif %}
+          <p class="text-gray-500 text-xs mt-1">Optional: Provide a brief description of this category</p>
+        </div>
+      </div>
+
+      <div class="mt-6 pt-6 border-t border-gray-200 flex gap-4">
+        <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition shadow-md hover:shadow-lg">
+          {% if is_edit %}Update Category{% else %}Create Category{% endif %}
+        </button>
+        <a href="{% url 'product:category_list' %}" class="flex-1 text-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+

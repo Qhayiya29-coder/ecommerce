@@ -1,0 +1,45 @@
+{{ site_name }} - Order Invoice
+================================
+
+Order Details
+-------------
+Order Number: {{ order.order_number }}
+Order Date: {{ order.created_at|date:"F d, Y h:i A" }}
+Status: {{ order.get_status_display }}
+
+Customer Information
+--------------------
+Name: {{ order.first_name }} {{ order.last_name }}
+Email: {{ order.email }}
+Phone: {{ order.phone }}
+
+Order Items
+-----------
+{% for item in order_items %}
+- {{ item.product.name }}
+  Quantity: {{ item.quantity }}
+  Unit Price: ${{ item.price|floatformat:2 }}
+  Subtotal: ${{ item.subtotal|floatformat:2 }}
+
+{% endfor %}
+
+Order Summary
+-------------
+Subtotal: ${{ order.subtotal|floatformat:2 }}
+Shipping Cost: ${{ order.shipping_cost|floatformat:2 }}
+Total: ${{ order.total|floatformat:2 }}
+
+Shipping Address
+----------------
+{{ order.first_name }} {{ order.last_name }}
+{{ order.shipping_address }}
+{{ order.city }}{% if order.region %}, {{ order.region }}{% endif %}
+{% if order.postal_code %}{{ order.postal_code }}{% endif %}
+{{ order.country }}
+
+Thank you for your order!
+
+If you have any questions, please contact us.
+
+© {{ order.created_at|date:"Y" }} {{ site_name }}. All rights reserved.
+

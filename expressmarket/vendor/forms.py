@@ -10,7 +10,6 @@ class VendorUserCreationForm(UserCreationForm):
     business_name = forms.CharField(max_length=150, required=True, label="Business Name")
     tin = forms.CharField(max_length=100, required=True, label="TIN")
     logo = forms.ImageField(required=False, label="Logo (optional)")
-    rating = forms.IntegerField(min_value=1, max_value=5, required=False, initial=3, label="Rating (1-5)")
 
     class Meta:
         model = User
@@ -20,7 +19,6 @@ class VendorUserCreationForm(UserCreationForm):
             "business_name",
             "tin",
             "logo",
-            "rating",
             "password1",
             "password2",
         )
@@ -35,7 +33,7 @@ class VendorUserCreationForm(UserCreationForm):
                 business_name=self.cleaned_data["business_name"],
                 tin=self.cleaned_data["tin"],
                 logo=self.cleaned_data.get("logo"),
-                rating=self.cleaned_data.get("rating") or 1,
+                rating=1,  # Default rating for new vendors
             )
         return user
 
