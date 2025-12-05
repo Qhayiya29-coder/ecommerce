@@ -1,5 +1,10 @@
 from django.shortcuts import render, redirect
 from django.views.generic import FormView, View
+from django.contrib.auth.views import PasswordResetView as DjangoPasswordResetView
+from django.contrib.auth.forms import PasswordResetForm
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.conf import settings
 
 from accounts.forms import UserTypeForm
 from django.urls import reverse_lazy
@@ -72,3 +77,13 @@ class LogoutView(View):
     def get(self, request, *args, **kwargs):
         logout(request)
         return redirect('core_ecommerce:home')
+
+
+class PasswordResetView(DjangoPasswordResetView):
+    """Custom password reset view that sends HTML emails"""
+    template_name = 'accounts/password_reset.html'
+    email_template_name = 'accounts/password_reset_email.txt'  # Plain text version
+    html_email_template_name = 'accounts/password_reset_email.html'  # HTML version
+    subject_template_name = 'accounts/password_reset_subject.txt'
+    success_url = reverse_lazy('accounts:password_reset_done')
+    form_class = PasswordResetForm
