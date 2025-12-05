@@ -325,15 +325,3 @@ This project is for educational purposes.
 
 For issues and questions, please open an issue in the repository.
 
-## Future Enhancements
-
-- Payment gateway integration
-- Email notifications
-- Product reviews and ratings
-- Advanced search and filtering
-- Wishlist functionality
-- Vendor analytics dashboard
-- Multi-currency support
-- Inventory management
-- Shipping integration
-
