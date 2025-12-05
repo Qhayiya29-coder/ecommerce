@@ -28,7 +28,8 @@ ExpressMarket is a full-featured multi-vendor e-commerce platform built with Dja
 
 - **Backend**: Django 6.0
 - **Database**: SQLite (development)
-- **Frontend**: HTML, CSS (Tailwind CSS)
+- **Frontend**: HTML, CSS (Tailwind CSS 4.1)
+- **Build Tools**: PostCSS, Autoprefixer
 - **Image Handling**: Pillow
 - **Authentication**: Django's built-in authentication system
 
@@ -87,32 +88,51 @@ expressmarket/
 
 5. **Install Node.js dependencies** (for Tailwind CSS):
    ```bash
+   cd expressmarket
    npm install
    ```
 
-6. **Run database migrations**:
+6. **Set up Tailwind CSS**:
+   ```bash
+   # The Tailwind configuration is already set up in tailwind.config.js
+   # To build CSS for development (with watch mode):
+   npm run build-css
+   
+   # Or for production (minified):
+   npm run build-css-prod
+   ```
+   
+   **Note**: The `build-css` command runs in watch mode and will automatically rebuild CSS when you make changes. Keep this running in a separate terminal while developing.
+
+7. **Run database migrations**:
    ```bash
    cd expressmarket
    python manage.py makemigrations
    python manage.py migrate
    ```
 
-7. **Create a superuser** (optional, for admin access):
+8. **Create a superuser** (optional, for admin access):
    ```bash
    python manage.py createsuperuser
    ```
 
-8. **Collect static files**:
+9. **Collect static files**:
    ```bash
    python manage.py collectstatic
    ```
 
-9. **Run the development server**:
-   ```bash
-   python manage.py runserver
-   ```
+10. **Run the development server**:
+    ```bash
+    python manage.py runserver
+    ```
+    
+    **Important**: Make sure to run Tailwind CSS in watch mode in a separate terminal:
+    ```bash
+    cd expressmarket
+    npm run build-css
+    ```
 
-10. **Access the application**:
+11. **Access the application**:
     - Main site: http://127.0.0.1:8000/
     - Admin panel: http://127.0.0.1:8000/admin/
 
@@ -238,6 +258,40 @@ python manage.py test
 
 ### Static Files
 Static files are served from `static/` directory. CSS is compiled using Tailwind CSS.
+
+### Tailwind CSS Development
+
+The project uses Tailwind CSS 4.1 for styling. Here's how to work with it:
+
+**File Structure:**
+- `static/src/input.css` - Source CSS file with Tailwind directives
+- `static/css/output.css` - Compiled CSS (generated, do not edit directly)
+- `tailwind.config.js` - Tailwind configuration
+- `postcss.config.js` - PostCSS configuration
+
+**Development Workflow:**
+
+1. **Start Tailwind in watch mode** (in a separate terminal):
+   ```bash
+   cd expressmarket
+   npm run build-css
+   ```
+   This will watch for changes and automatically rebuild the CSS.
+
+2. **Make changes to HTML templates** - Tailwind classes will be automatically detected and included in the output CSS.
+
+3. **For production builds** (minified CSS):
+   ```bash
+   npm run build-css-prod
+   ```
+
+**Tailwind Configuration:**
+The `tailwind.config.js` is configured to scan all HTML templates in the project:
+- `./templates/**/*.html`
+- `./**/templates/**/*.html`
+- `./**/*.html`
+
+This ensures all Tailwind classes used in templates are included in the final CSS.
 
 ## Environment Variables
 
