@@ -118,3 +118,30 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
+
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Email Configuration
+# For development, emails are printed to console
+# For production, configure SMTP settings
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Development: prints to console
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Production: uncomment and configure below
+
+# Production email settings (uncomment and configure for production)
+# EMAIL_HOST = 'smtp.gmail.com'  # or your SMTP server
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'your-email@gmail.com'
+# EMAIL_HOST_PASSWORD = 'your-app-password'
+# DEFAULT_FROM_EMAIL = 'ExpressMarket <noreply@expressmarket.com>'
+
+# Password reset settings
+PASSWORD_RESET_TIMEOUT = 86400  # 24 hours in seconds (token expiration)
+
+# Site configuration for password reset emails
+# Update these in production
+SITE_ID = 1
+SITE_NAME = 'ExpressMarket'
+SITE_DOMAIN = 'localhost:8000'  # Change to your domain in production
