@@ -21,22 +21,24 @@
           <div class="hidden md:flex md:items-center md:space-x-1" id="navbarNav">
             <div class="flex items-center space-x-1">
               <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="{% url 'core_ecommerce:home' %}">Marketplace</a>
-              <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="#">Vendors</a>
-              <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition relative" href="{% url 'core_ecommerce:cart' %}">
-                Cart
-                {% if cart_count > 0 %}
-                  <span class="absolute -top-1 -right-1 bg-blue-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                    {{ cart_count }}
-                  </span>
-                {% endif %}
-              </a>
+              {% if user.is_authenticated and not user.is_vendor %}
+                <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition relative" href="{% url 'core_ecommerce:cart' %}">
+                  Cart
+                  {% if cart_count > 0 %}
+                    <span class="absolute -top-1 -right-1 bg-blue-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                      {{ cart_count }}
+                    </span>
+                  {% endif %}
+                </a>
+              {% endif %}
             </div>
             <div class="flex items-center space-x-1 ml-4">
               {% if user.is_authenticated %}
                 {% if user.is_vendor %}
-                  <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="#">Vendor Dashboard</a>
+                  <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="{% url 'vendor:vendor_dashboard' %}">Vendor Dashboard</a>
+                {% else %}
+                  <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="{% url 'core_ecommerce:my_orders' %}">My Orders</a>
                 {% endif %}
-                <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="#">My Orders</a>
                 <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="#">Account</a>
                 <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="{% url 'accounts:logout' %}">Logout</a>
               {% else %}
@@ -51,20 +53,20 @@
         <div class="hidden md:hidden pb-4" id="mobile-menu">
           <div class="flex flex-col space-y-1">
             <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="{% url 'core_ecommerce:home' %}">Marketplace</a>
-            <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="#">Vendors</a>
-            <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition relative" href="{% url 'core_ecommerce:cart' %}">
-              Cart
-              {% if cart_count > 0 %}
-                <span class="ml-2 bg-blue-600 text-white text-xs font-bold rounded-full h-5 w-5 inline-flex items-center justify-center">
-                  {{ cart_count }}
-                </span>
-              {% endif %}
-            </a>
             {% if user.is_authenticated %}
               {% if user.is_vendor %}
-                <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="#">Vendor Dashboard</a>
+                <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="{% url 'vendor:vendor_dashboard' %}">Vendor Dashboard</a>
+              {% else %}
+                <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition relative" href="{% url 'core_ecommerce:cart' %}">
+                  Cart
+                  {% if cart_count > 0 %}
+                    <span class="ml-2 bg-blue-600 text-white text-xs font-bold rounded-full h-5 w-5 inline-flex items-center justify-center">
+                      {{ cart_count }}
+                    </span>
+                  {% endif %}
+                </a>
+                <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="{% url 'core_ecommerce:my_orders' %}">My Orders</a>
               {% endif %}
-              <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="#">My Orders</a>
               <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="#">Account</a>
               <a class="px-3 py-2 rounded-md hover:bg-gray-800 transition" href="{% url 'accounts:logout' %}">Logout</a>
             {% else %}

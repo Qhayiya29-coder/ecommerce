@@ -18,3 +18,8 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
     
+    @property
+    def is_vendor(self):
+        """Check if user is a vendor"""
+        return self.user_type == 'vendor'
+    

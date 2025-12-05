@@ -58,8 +58,14 @@ class LoginView(FormView):
     success_url = reverse_lazy('core_ecommerce:home')
     
     def form_valid(self, form):
-        login(self.request, form.get_user())
-        return super().form_valid(form)
+        user = form.get_user()
+        login(self.request, user)
+        
+        # Redirect based on user type
+        if user.is_vendor:
+            return redirect('vendor:vendor_dashboard')
+        else:
+            return redirect('core_ecommerce:home')
 
 
 class LogoutView(View):

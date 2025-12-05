@@ -8,6 +8,8 @@ from .views import (
     ClearCartView,
     CheckoutView,
     OrderSuccessView,
+    MyOrdersView,
+    OrderDetailView,
 )
 
 app_name = 'core_ecommerce'
@@ -20,4 +22,6 @@ urlpatterns = [
     path('cart/clear/', ClearCartView.as_view(), name='clear_cart'),
     path('checkout/', CheckoutView.as_view(), name='checkout'),
     path('order-success/<int:order_id>/', OrderSuccessView.as_view(), name='order_success'),
+    path('orders/', MyOrdersView.as_view(), name='my_orders'),
+    path('orders/<int:order_id>/', OrderDetailView.as_view(), name='order_detail'),
 ]

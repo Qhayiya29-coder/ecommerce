@@ -296,3 +296,40 @@ class OrderSuccessView(View):
             'order': order,
         }
         return render(request, self.template_name, context)
+
+
+@method_decorator(login_required, name='dispatch')
+class MyOrdersView(View):
+    """View to display user's order history"""
+    template_name = 'orders/my_orders.html'
+    
+    def get(self, request):
+        orders = Order.objects.filter(customer=request.user).select_related('customer').prefetch_related('items__product')
+        
+        # Get filter parameters
+        status_filter = request.GET.get('status', '')
+        if status_filter:
+            orders = orders.filter(status=status_filter)
+        
+        context = {
+            'orders': orders,
+            'status_filter': status_filter,
+            'status_choices': Order.STATUS_CHOICES,
+        }
+        return render(request, self.template_name, context)
+
+
+@method_decorator(login_required, name='dispatch')
+class OrderDetailView(View):
+    """View to display individual order details"""
+    template_name = 'orders/order_detail.html'
+    
+    def get(self, request, order_id):
+        order = get_object_or_404(Order, id=order_id, customer=request.user)
+        order_items = order.items.select_related('product', 'product__vendor', 'product__category').all()
+        
+        context = {
+            'order': order,
+            'order_items': order_items,
+        }
+        return render(request, self.template_name, context)

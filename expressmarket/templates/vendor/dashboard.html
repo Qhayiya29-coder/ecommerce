@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Vendor Dashboard | ExpressMarket{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+    <h1 class="text-3xl font-bold text-gray-900">Vendor Dashboard</h1>
+    <div class="flex flex-wrap gap-2">
+      {% if not store %}
+        <a href="{% url 'vendor:store_create' %}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition whitespace-nowrap">
+          Create Store
+        </a>
+      {% else %}
+        <a href="{% url 'vendor:store_create' %}" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition whitespace-nowrap">
+          Edit Store
+        </a>
+      {% endif %}
+      <a href="{% url 'vendor:product_create' %}" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition whitespace-nowrap">
+        + Add Product
+      </a>
+    </div>
+  </div>
+
+  <!-- Store Status -->
+  {% if store %}
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div class="flex-1">
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">{{ store.store_name }}</h2>
+          <p class="text-gray-600 mb-2">{{ store.description|truncatewords:20 }}</p>
+          <div class="flex items-center gap-4 text-sm text-gray-600">
+            <span>📍 {{ store.city }}{% if store.region %}, {{ store.region }}{% endif %}</span>
+            <span class="px-2 py-1 rounded {% if store.is_approved %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+              {% if store.is_approved %}Approved{% else %}Pending Approval{% endif %}
+            </span>
+          </div>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <a href="{% url 'vendor:product_create' %}" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition whitespace-nowrap text-center">
+            + Add Product
+          </a>
+          <a href="{% url 'vendor:store_create' %}" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition whitespace-nowrap text-center">
+            Edit Store
+          </a>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+      <h2 class="text-xl font-bold text-yellow-900 mb-2">No Store Created</h2>
+      <p class="text-yellow-800 mb-4">Create a store to start selling your products.</p>
+      <a href="{% url 'vendor:store_create' %}" class="inline-block bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-2 px-4 rounded-lg transition">
+        Create Store Now
+      </a>
+    </div>
+  {% endif %}
+
+  <!-- Statistics Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <div class="bg-white rounded-lg shadow-lg p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-600 text-sm mb-1">Total Products</p>
+          <p class="text-3xl font-bold text-gray-900">{{ total_products }}</p>
+        </div>
+        <div class="bg-blue-100 rounded-full p-3">
+          <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+          </svg>
+        </div>
+      </div>
+      <a href="{% url 'vendor:product_list' %}" class="text-blue-600 hover:text-blue-800 text-sm mt-2 inline-block">View All →</a>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-600 text-sm mb-1">Total Orders</p>
+          <p class="text-3xl font-bold text-gray-900">{{ total_orders }}</p>
+        </div>
+        <div class="bg-green-100 rounded-full p-3">
+          <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-600 text-sm mb-1">Total Sales</p>
+          <p class="text-3xl font-bold text-gray-900">${{ total_sales|floatformat:2 }}</p>
+        </div>
+        <div class="bg-purple-100 rounded-full p-3">
+          <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-600 text-sm mb-1">Items Sold</p>
+          <p class="text-3xl font-bold text-gray-900">{{ total_products_sold }}</p>
+        </div>
+        <div class="bg-orange-100 rounded-full p-3">
+          <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Recent Products -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold text-gray-900">Recent Products</h2>
+        <a href="{% url 'vendor:product_list' %}" class="text-blue-600 hover:text-blue-800 text-sm">View All →</a>
+      </div>
+      {% if products %}
+        <div class="space-y-4">
+          {% for product in products %}
+            <div class="flex items-center gap-4 pb-4 border-b border-gray-200 last:border-0">
+              {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-16 h-16 object-cover rounded">
+              {% else %}
+                <div class="w-16 h-16 bg-gray-100 rounded flex items-center justify-center text-gray-400 text-xs">No Image</div>
+              {% endif %}
+              <div class="flex-1">
+                <h3 class="font-semibold text-gray-900">{{ product.name }}</h3>
+                <p class="text-sm text-gray-600">${{ product.price }}</p>
+              </div>
+              <a href="{% url 'vendor:product_edit' product.id %}" class="text-blue-600 hover:text-blue-800 text-sm">Edit</a>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-gray-600 text-center py-8">No products yet. <a href="{% url 'vendor:product_create' %}" class="text-blue-600 hover:text-blue-800">Create your first product</a></p>
+      {% endif %}
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+      <h2 class="text-xl font-bold text-gray-900 mb-4">Recent Orders</h2>
+      {% if recent_orders %}
+        <div class="space-y-4">
+          {% for order_item in recent_orders %}
+            <div class="pb-4 border-b border-gray-200 last:border-0">
+              <div class="flex items-center justify-between mb-2">
+                <div>
+                  <p class="font-semibold text-gray-900">Order #{{ order_item.order.order_number }}</p>
+                  <p class="text-sm text-gray-600">{{ order_item.product.name }}</p>
+                </div>
+                <span class="px-2 py-1 rounded text-xs font-semibold
+                  {% if order_item.order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                  {% elif order_item.order.status == 'processing' %}bg-blue-100 text-blue-800
+                  {% elif order_item.order.status == 'shipped' %}bg-purple-100 text-purple-800
+                  {% elif order_item.order.status == 'delivered' %}bg-green-100 text-green-800
+                  {% else %}bg-gray-100 text-gray-800{% endif %}">
+                  {{ order_item.order.get_status_display }}
+                </span>
+              </div>
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-600">Qty: {{ order_item.quantity }} × ${{ order_item.price }}</span>
+                <span class="font-semibold text-gray-900">${{ order_item.subtotal }}</span>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-gray-600 text-center py-8">No orders yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+

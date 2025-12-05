@@ -67,27 +67,37 @@
         <p class="text-gray-700 leading-relaxed">{{ product.description|linebreaks }}</p>
       </div>
 
-      <form method="post" action="{% url 'core_ecommerce:add_to_cart' product.id %}" class="flex gap-4">
-        {% csrf_token %}
-        <input type="hidden" name="next" value="{{ request.path }}">
-        <div class="flex items-center gap-2 mr-4">
-          <label for="quantity" class="text-sm font-medium text-gray-700">Quantity:</label>
-          <input type="number" 
-                 name="quantity" 
-                 id="quantity"
-                 value="1" 
-                 min="1" 
-                 class="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center">
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'core_ecommerce:add_to_cart' product.id %}" class="flex gap-4">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.path }}">
+          <div class="flex items-center gap-2 mr-4">
+            <label for="quantity" class="text-sm font-medium text-gray-700">Quantity:</label>
+            <input type="number" 
+                   name="quantity" 
+                   id="quantity"
+                   value="1" 
+                   min="1" 
+                   class="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center">
+          </div>
+          <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200">
+            Add to Cart
+          </button>
+          <button type="button" class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition duration-200">
+            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+            </svg>
+          </button>
+        </form>
+      {% else %}
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+          <p class="text-yellow-800 text-sm mb-3">Please log in to add items to your cart.</p>
+          <a href="{% url 'accounts:login' %}?next={{ request.path }}" 
+             class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
+            Login to Continue
+          </a>
         </div>
-        <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200">
-          Add to Cart
-        </button>
-        <button type="button" class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition duration-200">
-          <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-          </svg>
-        </button>
-      </form>
+      {% endif %}
 
       <div class="mt-6 pt-6 border-t text-sm text-gray-600">
         <p><strong>Added:</strong> {{ product.created_at|date:"F d, Y" }}</p>
