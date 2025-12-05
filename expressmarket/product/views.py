@@ -4,8 +4,10 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.core.paginator import Paginator
-from product.models import Product, Category
-from product.forms import CategoryForm
+from django.db.models import Avg, Count
+from product.models import Product, Category, ProductReview
+from product.forms import CategoryForm, ReviewForm
+from core_ecommerce.models import Order, OrderItem
 
 
 class ProductDetailView(View):
@@ -18,9 +20,55 @@ class ProductDetailView(View):
             category=product.category
         ).exclude(id=product.id)[:4]
         
+        # Get reviews for this product
+        reviews = ProductReview.objects.filter(product=product).select_related('user').order_by('-created_at')
+        
+        # Calculate average rating
+        rating_stats = reviews.aggregate(
+            avg_rating=Avg('rating'),
+            total_reviews=Count('id')
+        )
+        # Convert avg_rating to int for star display
+        if rating_stats['avg_rating']:
+            rating_stats['avg_rating_int'] = int(round(rating_stats['avg_rating']))
+        else:
+            rating_stats['avg_rating_int'] = 0
+        
+        # Check if user has purchased this product (for review eligibility)
+        can_review = False
+        user_review = None
+        has_purchased = False
+        
+        if request.user.is_authenticated and not request.user.is_vendor:
+            # Check if user has purchased this product
+            has_purchased = OrderItem.objects.filter(
+                order__customer=request.user,
+                product=product,
+                order__status__in=['pending', 'processing', 'shipped', 'delivered']
+            ).exists()
+            
+            # Check if user already has a review
+            try:
+                user_review = ProductReview.objects.get(product=product, user=request.user)
+            except ProductReview.DoesNotExist:
+                user_review = None
+            
+            # Can review if purchased and hasn't reviewed yet
+            can_review = has_purchased and user_review is None
+        
+        # Paginate reviews
+        paginator = Paginator(reviews, 5)  # 5 reviews per page
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        
         context = {
             'product': product,
             'related_products': related_products,
+            'reviews': page_obj,
+            'rating_stats': rating_stats,
+            'can_review': can_review,
+            'has_purchased': has_purchased,
+            'user_review': user_review,
         }
         return render(request, self.template_name, context)
 
@@ -149,3 +197,108 @@ class CategoryDeleteView(View):
         category.delete()
         messages.success(request, f'Category "{category_name}" deleted successfully!')
         return redirect('product:category_list')
+
+
+@method_decorator(login_required, name='dispatch')
+class AddReviewView(View):
+    """Add a review for a product"""
+    
+    def post(self, request, product_id):
+        # Only buyers can leave reviews
+        if request.user.is_vendor:
+            messages.error(request, 'Vendors cannot leave reviews.')
+            return redirect('core_ecommerce:home')
+        
+        product = get_object_or_404(Product, id=product_id)
+        
+        # Check if user has purchased this product
+        has_purchased = OrderItem.objects.filter(
+            order__customer=request.user,
+            product=product,
+            order__status__in=['pending', 'processing', 'shipped', 'delivered']
+        ).exists()
+        
+        if not has_purchased:
+            messages.error(request, 'You can only review products you have purchased.')
+            return redirect('product:product_detail', slug=product.slug)
+        
+        # Check if user already has a review
+        existing_review = ProductReview.objects.filter(product=product, user=request.user).first()
+        if existing_review:
+            messages.info(request, 'You have already reviewed this product. You can edit your review instead.')
+            return redirect('product:edit_review', review_id=existing_review.id)
+        
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.product = product
+            review.user = request.user
+            review.save()
+            messages.success(request, 'Your review has been submitted successfully!')
+            return redirect('product:product_detail', slug=product.slug)
+        else:
+            messages.error(request, 'Please correct the errors in your review.')
+            return redirect('product:product_detail', slug=product.slug)
+
+
+@method_decorator(login_required, name='dispatch')
+class EditReviewView(View):
+    """Edit an existing review"""
+    template_name = 'product/review_form.html'
+    
+    def get(self, request, review_id):
+        review = get_object_or_404(ProductReview, id=review_id)
+        
+        # Only the review owner can edit
+        if review.user != request.user:
+            messages.error(request, 'You can only edit your own reviews.')
+            return redirect('product:product_detail', slug=review.product.slug)
+        
+        form = ReviewForm(instance=review)
+        context = {
+            'form': form,
+            'review': review,
+            'product': review.product,
+            'is_edit': True,
+        }
+        return render(request, self.template_name, context)
+    
+    def post(self, request, review_id):
+        review = get_object_or_404(ProductReview, id=review_id)
+        
+        # Only the review owner can edit
+        if review.user != request.user:
+            messages.error(request, 'You can only edit your own reviews.')
+            return redirect('product:product_detail', slug=review.product.slug)
+        
+        form = ReviewForm(request.POST, instance=review)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your review has been updated successfully!')
+            return redirect('product:product_detail', slug=review.product.slug)
+        
+        context = {
+            'form': form,
+            'review': review,
+            'product': review.product,
+            'is_edit': True,
+        }
+        return render(request, self.template_name, context)
+
+
+@method_decorator(login_required, name='dispatch')
+class DeleteReviewView(View):
+    """Delete a review"""
+    
+    def post(self, request, review_id):
+        review = get_object_or_404(ProductReview, id=review_id)
+        product_slug = review.product.slug
+        
+        # Only the review owner can delete
+        if review.user != request.user:
+            messages.error(request, 'You can only delete your own reviews.')
+            return redirect('product:product_detail', slug=product_slug)
+        
+        review.delete()
+        messages.success(request, 'Your review has been deleted successfully!')
+        return redirect('product:product_detail', slug=product_slug)
