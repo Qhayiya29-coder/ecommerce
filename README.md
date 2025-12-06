@@ -6,6 +6,7 @@ ExpressMarket is a full-featured multi-vendor e-commerce platform built with Dja
 
 ### Customer Features
 - **User Registration & Authentication**: Separate registration for customers and vendors
+- **Password Reset**: Secure password reset via email with expiring tokens (24-hour expiration)
 - **Product Browsing**: Browse products by category with search functionality
 - **Shopping Cart**: Session-based shopping cart to add/remove products
 - **Checkout Process**: Complete checkout with shipping information
@@ -200,6 +201,10 @@ expressmarket/
 - `/accounts/login/` - Login page
 - `/accounts/register/` - Registration page
 - `/accounts/logout/` - Logout
+- `/accounts/password-reset/` - Request password reset
+- `/accounts/password-reset/done/` - Password reset email sent confirmation
+- `/accounts/password-reset-confirm/<uidb64>/<token>/` - Reset password with token
+- `/accounts/password-reset-complete/` - Password reset successful
 
 ### Customer URLs
 - `/cart/` - Shopping cart
@@ -300,6 +305,28 @@ For production, you should set:
 - `DEBUG`: Set to `False` in production
 - `ALLOWED_HOSTS`: List of allowed hostnames
 - `DATABASE_URL`: Database connection string (if using external database)
+
+## Email Configuration
+
+### Development
+By default, emails are printed to the console. This is configured in `settings.py`:
+```python
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+```
+
+### Production
+To send actual emails, update `settings.py` with your SMTP settings:
+```python
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # or your SMTP server
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'your-email@gmail.com'
+EMAIL_HOST_PASSWORD = 'your-app-password'
+DEFAULT_FROM_EMAIL = 'ExpressMarket <noreply@expressmarket.com>'
+```
+
+**Note**: For Gmail, you'll need to use an [App Password](https://support.google.com/accounts/answer/185833) instead of your regular password.
 
 ## Security Notes
 
