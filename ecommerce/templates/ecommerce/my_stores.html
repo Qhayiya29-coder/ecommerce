@@ -1,0 +1,50 @@
+{% extends 'ecommerce/base.html' %}
+
+{% block title %}My Stores - Ecommerce Store{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h1>My Stores</h1>
+        <a href="{% url 'ecommerce:create_store' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Create New Store
+        </a>
+    </div>
+</div>
+
+{% if stores %}
+    <div class="row">
+        {% for store in stores %}
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ store.name }}</h5>
+                        <p class="card-text">{{ store.description|truncatewords:30 }}</p>
+                        <p class="text-muted">
+                            <small>Created: {{ store.created_at|date:"F d, Y" }}</small>
+                        </p>
+                        <div class="btn-group" role="group">
+                            <a href="{% url 'ecommerce:store_products' store.id %}" class="btn btn-info">
+                                <i class="bi bi-box"></i> Products
+                            </a>
+                            <a href="{% url 'ecommerce:edit_store' store.id %}" class="btn btn-warning">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                            <a href="{% url 'ecommerce:delete_store' store.id %}" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Delete
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        <h4>You don't have any stores yet.</h4>
+        <p>Create your first store to start selling products!</p>
+        <a href="{% url 'ecommerce:create_store' %}" class="btn btn-primary">Create Store</a>
+    </div>
+{% endif %}
+{% endblock %}
+

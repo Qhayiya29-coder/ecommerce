@@ -1,0 +1,29 @@
+{% extends 'ecommerce/base.html' %}
+
+{% block title %}Delete Store - Ecommerce Store{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h3>Delete Store</h3>
+            </div>
+            <div class="card-body">
+                <p class="alert alert-warning">
+                    <strong>Warning!</strong> Are you sure you want to delete the store "<strong>{{ store.name }}</strong>"?
+                    This action cannot be undone and will delete all products in this store.
+                </p>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'ecommerce:my_stores' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-danger">Delete Store</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
